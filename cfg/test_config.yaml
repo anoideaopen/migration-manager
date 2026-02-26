@@ -1,0 +1,19 @@
+# snapshot is the path to the directory where the files with the HLF state will be located
+snapshot: ./tmp
+
+# The HLF section defines the parameters for connecting clients to HLF,
+# for state requests and transaction execution
+hlf:
+  # config defines the path to the HLF SDK connection description
+  config:    "/opt/services/etc/client.yaml"
+  # org - user's organization.
+  org:       org1
+  # user - the name of the user from whom the connection is being made.
+  user:      User1
+  # channel - the channel where the chaincode is deployed.
+  channel:   fiat
+  # chaincode - the name of the chaincode.
+  chaincode: fiat
+  # exectimeout defines the maximum execution time of the Invoke or Query HLF call.
+  # If this parameter is not set, the default value of 2 minutes will be applied.
+  exectimeout: 2m

@@ -1,0 +1,123 @@
+name: Release
+
+on:
+  workflow_dispatch: # workflow_dispatch must be enabled in main branch to support release action on older release branches
+  push:
+    tags:
+      - 'v*'
+
+env:
+  GO_VER: 1.26.0
+  UBUNTU_VER: 22.04
+  APP_VER: ${{ github.ref_name }}
+  COMMIT: ${{ github.sha }}
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-push-docker-images:
+    name: Build and Push to dockerhub
+    runs-on: 'ubuntu-22.04'
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Store build timestamp
+        run: echo "BUILD_TIME=$(date -u +'%F_%T')" >> $GITHUB_ENV
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          buildkitd-flags: --debug
+          config-inline: |
+            [worker.oci]
+              max-parallelism = 1
+
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Login to the docker.com Container Registry
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: scientificideas/migration-manager
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}.{{minor}}.{{patch}}
+
+      - name: Build and push test-cli Image
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          push: ${{ github.event_name != 'pull_request' }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            APP_VER=${{ env.APP_VER }}
+            COMMIT=${{ env.COMMIT }}
+            UBUNTU_VER=${{ env.UBUNTU_VER }}
+            GO_VER=${{ env.GO_VER }}
+            BUILD_TIME=${{ env.BUILD_TIME }}
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: 'ubuntu-22.04'
+
+    needs:
+      - build-and-push-docker-images
+
+    permissions:
+      contents: write
+      packages: write
+
+    strategy:
+      matrix:
+        include:
+          - target: linux
+            arch: amd64
+          - target: linux
+            arch: arm64
+          - target: darwin
+            arch: amd64
+          - target: darwin
+            arch: arm64
+          - target: windows
+            arch: amd64
+
+    steps:
+      - name: Store build timestamp
+        run: echo "BUILD_TIME=$(date -u +'%F_%T')" >> $GITHUB_ENV
+
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Compile and release
+        uses: wangyoucao577/go-release-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: ${{ matrix.target }}
+          goarch: ${{ matrix.arch }}
+          goversion: ${{ env.GO_VER }}
+          binary_name: "cli"
+          build_flags: "-v"
+          ldflags: "-X 'main.version=${{ env.APP_VER }}' -X 'main.commit=${{ env.COMMIT }}' -X 'main.date=${{ env.BUILD_TIME }}'"
+          extra_files: README.md CHANGE_PUBLIC_KEY.md
+          md5sum: FALSE
+          overwrite: TRUE
+          compress_assets: TRUE

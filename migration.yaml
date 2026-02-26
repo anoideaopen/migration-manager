@@ -1,0 +1,9 @@
+snapshot: ""
+
+hlf:
+  config:      ""
+  org:         ""
+  user:        ""
+  channel:     ""
+  chaincode:   ""
+  exectimeout: 2m
