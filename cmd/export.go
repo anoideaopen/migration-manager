@@ -20,15 +20,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	requestEntries uint32
-	onlyKeys       bool
-	isInvoke       bool
-)
+var requestEntries uint32
 
 var exportCmd = &cobra.Command{
 	Use:   "export",
-	Short: "Stores all kv state entries to the migration directory",
+	Short: "Stores all kv state entries to the migration directory (only invoke)",
 	Run: func(cmd *cobra.Command, args []string) {
 		var (
 			terminate   = make(chan os.Signal, 1)
@@ -45,35 +41,26 @@ var exportCmd = &cobra.Command{
 		appCfg, channelClient, defFunc := core.InitChCli(cfgFile)
 		defer defFunc()
 
-		if requestEntries < defaultChunkSize {
-			requestEntries = defaultChunkSize
+		if requestEntries < minChunkSize {
+			requestEntries = minChunkSize
 		}
 
 		if requestEntries > maxChunkSize {
 			requestEntries = maxChunkSize
 		}
 
-		// If we are executing, and not requesting, then only fully KV
-		if isInvoke {
-			onlyKeys = false
-		}
-
-		get := func(bookmark string) (channel.Response, error) {
+		get := func(bookmark string, isComposite bool) (channel.Response, error) {
 			req := channel.Request{
 				ChaincodeID: appCfg.HLF.Chaincode,
 				Fcn:         exportFn,
 				Args: [][]byte{
 					[]byte(strconv.FormatUint(uint64(requestEntries), 10)),
 					[]byte(bookmark),
-					[]byte(strconv.FormatBool(onlyKeys)),
+					[]byte(strconv.FormatBool(isComposite)),
 				},
 			}
 
-			if isInvoke {
-				return channelClient.Execute(req, channel.WithTimeout(fab.Execute, appCfg.HLF.ExecTimeout))
-			}
-
-			return channelClient.Query(req, channel.WithTimeout(fab.Execute, appCfg.HLF.ExecTimeout))
+			return channelClient.Execute(req, channel.WithTimeout(fab.Execute, appCfg.HLF.ExecTimeout))
 		}
 
 		generalGet(ctx, get, appCfg, defaultTrysCount, defaultExt)
@@ -82,14 +69,15 @@ var exportCmd = &cobra.Command{
 
 func generalGet( //nolint:funlen
 	ctx context.Context,
-	get func(bookmark string) (channel.Response, error),
+	get func(bookmark string, isComposite bool) (channel.Response, error),
 	appCfg *cfg.Config,
 	trysCount int,
 	ext string,
 ) {
 	var (
-		bookmark string
-		chunkNum uint64
+		bookmark    string
+		chunkNum    uint64
+		isComposite bool
 	)
 
 	_ = os.RemoveAll(appCfg.SnapshotDir)
@@ -116,7 +104,7 @@ OuterLoop:
 			default:
 			}
 
-			if resp, err = get(bookmark); err == nil {
+			if resp, err = get(bookmark, isComposite); err == nil {
 				break
 			}
 
@@ -138,30 +126,34 @@ OuterLoop:
 		core.MustUnmarshal(resp.Payload, entries)
 
 		log.Printf("Bookmark: %s", entries.GetBookmark())
-		for _, entry := range entries.GetEntries() {
-			log.Printf("Received state entry: %s -> %d bytes", entry.GetKey(), len(entry.GetValue()))
-		}
 
-		fileName := path.Join(appCfg.SnapshotDir, fmt.Sprintf("%09d%s", chunkNum, ext))
-		if err = os.WriteFile(fileName, resp.Payload, 0o600); err != nil { //nolint:gomnd
-			log.Panicf("couldn't save state file: %v", err)
-		}
+		if len(entries.GetEntries()) != 0 {
+			for _, entry := range entries.GetEntries() {
+				log.Printf("Received state entry: %s -> %d bytes", entry.GetKey(), len(entry.GetValue()))
+			}
 
-		log.Printf("Chunk %d stored", chunkNum)
+			fileName := path.Join(appCfg.SnapshotDir, fmt.Sprintf("%09d%s", chunkNum, ext))
+			if err = os.WriteFile(fileName, resp.Payload, 0o600); err != nil { //nolint:gomnd
+				log.Panicf("couldn't save state file: %v", err)
+			}
+			chunkNum++
+			log.Printf("Chunk %d stored", chunkNum)
+		}
 
 		if entries.GetBookmark() == "" {
-			log.Print("Done")
-			break
+			if isComposite {
+				log.Print("Done")
+				break
+			}
+
+			isComposite = true
 		}
 
 		bookmark = entries.GetBookmark()
-		chunkNum++
 	}
 }
 
 func init() {
 	rootCmd.AddCommand(exportCmd)
 	exportCmd.Flags().Uint32VarP(&requestEntries, "entries", "e", defaultChunkSize, "state entries count per request")
-	exportCmd.Flags().BoolVarP(&onlyKeys, "only_keys", "k", false, "only the keys will be returned in the response (default false)")
-	exportCmd.Flags().BoolVarP(&isInvoke, "is_invoke", "i", false, "exec invoke or query (default query)")
 }

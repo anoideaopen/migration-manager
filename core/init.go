@@ -7,7 +7,6 @@ import (
 
 	"github.com/anoideaopen/migration-manager/cfg"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
-	"github.com/hyperledger/fabric-sdk-go/pkg/client/ledger"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/context"
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fabsdk"
@@ -26,17 +25,6 @@ func InitChCli(cfgFile string) (*cfg.Config, *channel.Client, func()) {
 	}
 
 	return appCfg, channelClient, defFunc
-}
-
-func InitLgCli(cfgFile string) (*cfg.Config, *ledger.Client, func()) {
-	appCfg, clientChannelContext, defFunc := initChCtx(cfgFile)
-
-	ledgerClient, err := ledger.New(clientChannelContext)
-	if err != nil {
-		log.Panicf("couldn't create ledger client: %v", err)
-	}
-
-	return appCfg, ledgerClient, defFunc
 }
 
 func initChCtx(cfgFile string) (*cfg.Config, context.ChannelProvider, func()) {

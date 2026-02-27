@@ -19,6 +19,7 @@
     - [Configuration yaml file](#configuration-yaml-file)
     - [Run](#run)
       - [Export](#export)
+      - [Get](#get)
       - [Import](#import)
     - [License](#license)
     - [Links](#links)
@@ -75,17 +76,19 @@ export MIGRATION_HLF_CHAINCODE="fiat" &&
 ```
 
 ### Export
-Получить стейт чанками (по 1000 в чанке) без фиксации в HLF 
+Get a state in chunks (1000 per chunk) with a commit in HLF.
 ```shell
-./migration-manager export -c migration.yaml -e 1000
+./migration-manager export -c migration.yaml  -e 1000
 ```
-Получить стейт чанками (по 1000 в чанке) с фиксацией в HLF. Таким способом получить только ключи запрещено.
+
+### Get
+Get a state in chunks (1000 per chunk) without committing to HLF
 ```shell
-./migration-manager export -c migration.yaml  -e 1000 -i
+./migration-manager get -c migration.yaml -e 1000
 ```
 
 ### Import
-Загрузить стейт в новый HLF
+Upload a state to a new HLF
 ```shell
 ./migration-manager import -c migration.yaml
 ```

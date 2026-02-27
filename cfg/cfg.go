@@ -18,7 +18,6 @@ type HLF struct {
 	User        string        `mapstructure:"user"`
 	Channel     string        `mapstructure:"channel"`
 	Chaincode   string        `mapstructure:"chaincode"`
-	UseSmartBFT bool          `mapstructure:"usebft"`
 	ExecTimeout time.Duration `mapstructure:"exectimeout"`
 }
 
