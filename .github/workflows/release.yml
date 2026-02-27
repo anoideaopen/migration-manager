@@ -117,7 +117,7 @@ jobs:
           binary_name: "migration-manager"
           build_flags: "-v"
           ldflags: "-X 'main.version=${{ env.APP_VER }}' -X 'main.commit=${{ env.COMMIT }}' -X 'main.date=${{ env.BUILD_TIME }}'"
-          extra_files: README.md CHANGE_PUBLIC_KEY.md
+          extra_files: README.md
           md5sum: FALSE
           overwrite: TRUE
           compress_assets: TRUE
