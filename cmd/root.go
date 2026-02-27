@@ -8,17 +8,13 @@ import (
 )
 
 const (
-	defaultExt              = ".state"
-	defaultTrysCount        = 10
-	defaultChunkSize        = 100
-	maxChunkSize            = 10000
-	importFn                = "importChunkKV"
-	exportFn                = "exportChunkKV"
-	setInfoFn               = "commitMigrationInfo"
-	hashStateFn             = "exportEnd"
-	aclChaincode            = "acl"
-	importObserverACLDataFn = "importObserverACLData"
-	updateACLMSPIDFn        = "updateACLMSPID"
+	defaultExt       = ".state"
+	defaultTrysCount = 10
+	defaultChunkSize = 1000
+	minChunkSize     = 100
+	maxChunkSize     = 10000
+	importFn         = "importChunkKV"
+	exportFn         = "exportChunkKV"
 )
 
 var cfgFile string
