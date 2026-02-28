@@ -19,8 +19,8 @@ github.com/alecthomas/units v0.0.0-20190717042225-c3de453c63f4/go.mod h1:ybxpYRF
 github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d/go.mod h1:rBZYJk541a8SKzHPHnH3zbiI+7dagKZ0cgpgrD7Fyho=
 github.com/anoideaopen/fabric-sdk-go v0.1.0 h1:E4eDgq4sb0OCY4mPcXveVgywgWlzlw+wvFLxxmsvl84=
 github.com/anoideaopen/fabric-sdk-go v0.1.0/go.mod h1:5e4ziwaXJQmkUtQOIkb1oEwwP8KxptEN9o2vuk/pzJ0=
-github.com/anoideaopen/migrationcc v0.0.1 h1:uvaOfS4zH1S5ajx6nT63G98VvSQsAFxfeFUpracEFOs=
-github.com/anoideaopen/migrationcc v0.0.1/go.mod h1:Zlj1a3SYLld1v+9H84AmhcjyPCx6WY28ME+mDaf0qVw=
+github.com/anoideaopen/migrationcc v0.0.2 h1:r45wgonKCg7Xoix+rGhBYlSKMn48FFKlVKME+d5bniA=
+github.com/anoideaopen/migrationcc v0.0.2/go.mod h1:Zlj1a3SYLld1v+9H84AmhcjyPCx6WY28ME+mDaf0qVw=
 github.com/apache/thrift v0.12.0/go.mod h1:cp2SuWMxlEZw2r+iP2GNCdIi4C1qmUzdZFSVb+bacwQ=
 github.com/apache/thrift v0.13.0/go.mod h1:cp2SuWMxlEZw2r+iP2GNCdIi4C1qmUzdZFSVb+bacwQ=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
