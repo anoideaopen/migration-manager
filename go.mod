@@ -3,7 +3,7 @@ module github.com/anoideaopen/migration-manager
 go 1.26.0
 
 require (
-	github.com/anoideaopen/migrationcc v0.0.1
+	github.com/anoideaopen/migrationcc v0.0.2
 	github.com/hyperledger/fabric-sdk-go v1.0.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
