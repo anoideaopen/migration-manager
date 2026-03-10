@@ -1,6 +1,6 @@
 module github.com/anoideaopen/migration-manager
 
-go 1.26.0
+go 1.26.1
 
 require (
 	github.com/anoideaopen/migrationcc v0.0.3
