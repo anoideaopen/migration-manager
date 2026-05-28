@@ -8,11 +8,11 @@ on:
   workflow_dispatch:
 
 env:
-  GO_VER: 1.26.2
+  GO_VER: 1.26.3
 
 jobs:
   check-cyrillic-comments:
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-24.04'
     steps:
       - uses: actions/checkout@v6
       - name: check cyrillic comments
@@ -22,7 +22,7 @@ jobs:
   validate-go:
     needs:
       - check-cyrillic-comments
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-24.04'
     steps:
       - uses: actions/checkout@v6
 
@@ -44,7 +44,7 @@ jobs:
   golangci-lint:
     needs:
       - validate-go
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-24.04'
     steps:
       - uses: actions/checkout@v6
       - name: setup go
@@ -62,7 +62,7 @@ jobs:
   go-unit-test:
     needs:
       - golangci-lint
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-24.04'
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
