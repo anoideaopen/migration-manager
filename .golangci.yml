@@ -1,8 +1,4 @@
 version: "2"
-run:
-  concurrency: 4
-  go: "1.26"
-  tests: false
 linters:
   default: none
   enable:
@@ -24,7 +20,7 @@ linters:
     - gocritic
     - gocyclo
     - goheader
-    - gomodguard
+    - gomodguard_v2
     - goprintffuncname
     - gosec
     - grouper
